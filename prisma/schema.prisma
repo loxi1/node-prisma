@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Curso {
+  id  Int @id @default(autoincrement())
+  titulo String @db.VarChar(100)
+  imagen String?
+  codigo String @unique
+  estado Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ServicioCurso ServicioCurso[]
+
+  @@map("Cursos")
+}
+
+model Departamento {
+  id Int @id @default(autoincrement())
+  departamento String @db.VarChar(150)
+
+  Provincia Provincia[]
+
+  @@map("Departamentos")
+}
+
+model Provincia {
+  id Int @id @default(autoincrement())
+  provincia String
+  departamentoId Int
+
+  Distrito Distrito[]
+
+  Departamento Departamento? @relation(fields:[departamentoId], references: [id])
+
+  @@map("Provincias")
+}
+
+model Distrito {
+  id Int @id @default(autoincrement())
+  distrito String
+  provinciaId Int
+
+  Provincia Provincia @relation(fields: [provinciaId], references: [id])
+
+  @@map("Distritos")
+}
+
+model Servicio {
+  id Int @id @default(autoincrement())
+  servicio String
+  imagen String
+  orden Int
+  estado Boolean @default(true)
+
+  ServicioCurso ServicioCurso[]
+
+  @@map("Servicios")
+}
+
+model ServicioCurso {
+  id Int @id @default(autoincrement())
+  provinciaId Int
+  servicioId Int
+  cursoId Int
+  orden Int
+  estado Boolean @default(true)
+
+  Silabu Silabu[]
+
+  Servicio Servicio @relation(fields: [servicioId], references: [id])
+  Curso Curso @relation(fields: [cursoId], references: [id])
+
+  @@map("ServicioCursos")
+}
+
+model Silabu {
+  id Int @id @default(autoincrement())
+  sevicioCursoId Int
+  capitulo String
+  titulo String
+  orden Int
+  estado Boolean @default(true)
+
+  ServicioCurso ServicioCurso @relation(fields: [sevicioCursoId], references: [id])
+
+  @@map("Silabus")
+}
